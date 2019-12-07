@@ -1,23 +1,14 @@
 package io.github.alexbergeron.aoc2019
 
-import cats._
 import cats.effect._
 import cats.syntax.all._
-import fs2.{io, text, Stream}
+import fs2.Stream
 import java.nio.file.Path
 import java.nio.file.Paths
 
-trait Day1 {
+trait Day1 extends Common {
   def fuelForMass(mass: Int): Int = {
     math.floor(mass.toDouble / 3).toInt - 2
-  }
-
-  def readLines[F[_]: ContextShift: Sync](path: Path): Stream[F, String] = {
-    Stream.resource(Blocker[F]).flatMap { blocker =>
-      io.file.readAll[F](path, blocker, 4096)
-        .through(text.utf8Decode)
-        .through(text.lines)
-    }
   }
 
   def fuelForFuel[F[_]: Sync](fuel: Int): F[Int] = {
