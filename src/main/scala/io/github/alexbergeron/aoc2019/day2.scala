@@ -43,6 +43,14 @@ trait Day2 extends Common {
   def setInputs(program: Vector[Int], noun: Int, verb: Int): Vector[Int] = {
     program.updated(1, noun).updated(2, verb)
   }
+
+  def tryInputs[F[_]: Sync](program: Vector[Int], noun: Int, verb: Int, expected: Int): F[Option[Int]] = {
+    executeProgram[F](setInputs(program, noun, verb)).map { result =>
+      if (result(0) == expected) {
+        Some(100 * noun + verb)
+      } else None
+    }
+  }
 }
 
 object Day2Test extends Day2 with IOApp {
@@ -62,6 +70,35 @@ object Day2Part1 extends Day2 with IOApp {
       .map (setInputs(_, 12, 2))
       .flatMap(executeProgram[IO])
       .flatMap(program => IO { println(program(0)) })
+      .as(ExitCode.Success)
+  } 
+}
+
+object Day2Part2 extends Day2 with IOApp {
+
+  private def testSolutions(program: Vector[Int]): IO[Unit] = IO.suspend {
+    val inputsStream = Stream.range(0, 100)
+    inputsStream
+      .flatMap { noun =>
+        inputsStream.map { verb => (noun, verb) }
+      }
+      .lift[IO]
+      .evalMap { case (noun, verb) =>
+        tryInputs[IO](program, noun, verb, 19690720)
+      }
+      .collectFirst {
+        case Some(output) => output
+      }
+      .evalMap { output => IO { println(output) } }
+      .compile
+      .drain
+  }
+
+  def run(args: List[String]): IO[ExitCode] = {
+    val resourcePath: Path = Paths.get("data/day2/input")
+
+    readProgram(resourcePath)
+      .flatMap(testSolutions _)
       .as(ExitCode.Success)
   } 
 }
