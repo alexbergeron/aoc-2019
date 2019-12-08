@@ -3,13 +3,11 @@ package io.github.alexbergeron.aoc2019
 import cats.effect._
 import cats.syntax.all._
 import fs2.Stream
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
 trait Day1 extends Common {
-  def fuelForMass(mass: Int): Int = {
+  def fuelForMass(mass: Int): Int =
     math.floor(mass.toDouble / 3).toInt - 2
-  }
 
   def fuelForFuel[F[_]: Sync](fuel: Int): F[Int] = {
     val requiredFuel = fuelForMass(fuel)
