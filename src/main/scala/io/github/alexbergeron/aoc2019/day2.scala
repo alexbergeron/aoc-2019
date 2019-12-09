@@ -7,9 +7,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 trait Day2 extends Common {
-
-  case class Run(program: Vector[Int], operationIndex: Int)
-
   def readProgram[F[_]: ContextShift: Sync](path: Path): F[Vector[Int]] =
     readLines[F](path)
       .filter(_.nonEmpty)
